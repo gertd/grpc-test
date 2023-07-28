@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+option go_package = "github.com/gertd/grpc-test/helloworld";
+
+import "buf/validate/validate.proto";
+
+package helloworld;
+
+service Greeter {
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc SayHallo (HalloRequest) returns (HalloReply) {}
+}
+
+message HelloRequest {
+  string name = 1
+  [
+    (buf.validate.field) = {
+        required: true,
+        cel: {
+            id: "hello_request_name"
+            message: "cannot contain any spaces or other whitespace characters"
+            expression: "this.matches('^[^\\t\\n\\f\\r ]+$')"
+        }
+        string: {
+            max_len: 256
+        }
+    }
+  ];
+}
+
+message HelloReply {
+  string message = 1;
+}
+
+message HalloRequest {
+  string name = 1
+  [
+    (buf.validate.field) = {
+        required: true,
+        cel: {
+            id: "hello_request_name"
+            message: "cannot contain any spaces or other whitespace characters"
+            expression: "this.matches('^[^\\S]+$')"
+        }
+        string: {
+            max_len: 256
+        }
+    }
+  ];
+}
+
+message HalloReply {
+  string message = 1;
+}
